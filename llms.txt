@@ -1,0 +1,71 @@
+# Asana Tools
+
+> Asana API を操作するシェルスクリプトツールキット。Claude Code などの AI コーディングエージェントから Asana のタスク管理を行うために使用する。
+
+## スクリプトの場所
+
+すべてのスクリプトは `~/hibiki.tatsuno/asana-tools/scripts/` に配置されている。
+認証情報は `~/hibiki.tatsuno/asana-tools/.env` から自動ロードされる。
+
+## 利用可能なスクリプト
+
+### 情報取得（読み取り系）
+
+- `get-me.sh`: 自分のユーザー情報を取得する。引数なし
+- `list-workspaces.sh`: ワークスペース一覧を取得する。引数なし
+- `list-projects.sh [workspace_gid]`: プロジェクト一覧を取得する。workspace_gid 省略時は .env の ASANA_WORKSPACE_GID を使用
+- `list-sections.sh [project_gid]`: プロジェクトのセクション一覧を取得する。project_gid 省略時は .env の ASANA_PROJECT_GID を使用
+- `list-tasks.sh [project_gid] [--completed]`: プロジェクトのタスク一覧を取得する。--completed で完了タスクも含める
+- `get-task.sh <task_gid>`: タスクの詳細情報を取得する。task_gid は必須
+- `get-comments.sh <task_gid>`: タスクのコメント一覧を取得する。task_gid は必須
+- `search-tasks.sh <query> [workspace_gid]`: キーワードでタスクを検索する。query は必須
+
+### タスク操作（書き込み系）
+
+- `create-task.sh <name> [-p project_gid] [-a assignee_gid] [-d YYYY-MM-DD] [-n notes]`: タスクを作成する。name は必須。オプションで担当者・期日・説明を指定可能
+- `update-task.sh <task_gid> [--name name] [--completed] [--uncompleted] [--assignee gid] [--due YYYY-MM-DD] [--notes text]`: タスクを更新する。task_gid は必須。更新したいフィールドをオプションで指定
+- `delete-task.sh <task_gid>`: タスクを削除する。実行前にユーザーへの確認が必須
+- `add-comment.sh <task_gid> <comment_text>`: タスクにコメントを追加する。両引数とも必須
+- `move-to-section.sh <section_gid> <task_gid>`: タスクを指定セクションに移動する。セクション GID は list-sections.sh で確認可能
+
+## 典型的なワークフロー
+
+### タスク一覧を確認する
+
+```bash
+~/hibiki.tatsuno/asana-tools/scripts/list-tasks.sh
+```
+
+### 新しいタスクを作成する
+
+```bash
+~/hibiki.tatsuno/asana-tools/scripts/create-task.sh "バグ修正: ログイン画面" -d 2026-03-01 -n "詳細な説明"
+```
+
+### タスクを完了にする
+
+```bash
+~/hibiki.tatsuno/asana-tools/scripts/update-task.sh <task_gid> --completed
+```
+
+### タスクにコメントを追加する
+
+```bash
+~/hibiki.tatsuno/asana-tools/scripts/add-comment.sh <task_gid> "対応完了しました"
+```
+
+### タスクをセクション間で移動する
+
+```bash
+# セクション一覧を確認
+~/hibiki.tatsuno/asana-tools/scripts/list-sections.sh
+# タスクを移動
+~/hibiki.tatsuno/asana-tools/scripts/move-to-section.sh <section_gid> <task_gid>
+```
+
+## 注意事項
+
+- 削除操作（delete-task.sh）は実行前に必ずユーザーに確認を取ること
+- レート制限: 短時間に大量リクエストを送らないこと（1分あたり約1,500リクエスト）
+- .env ファイルを直接読み取らないこと（トークンが含まれるため）
+- 出力はすべて JSON（jq 整形済み）
