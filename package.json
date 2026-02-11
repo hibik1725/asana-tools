@@ -1,0 +1,12 @@
+{
+  "name": "asana-tools",
+  "version": "1.0.0",
+  "description": "Asana API ツールキット - どのプロジェクトからでも再利用可能",
+  "private": true,
+  "scripts": {
+    "asana": "dotenv-cli -e .env -- bash -c 'cd scripts && bash \"$0\" \"${@}\"'"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0"
+  }
+}
