@@ -44,12 +44,12 @@ PAYLOAD=$(jq -n \
   --arg due_on "$DUE_ON" \
   --arg assignee "$ASSIGNEE_GID" \
   --arg project "$PROJECT_GID" \
-  '{data: {name: $name}
-    + (if $notes != "" then {notes: $notes} else {} end)
-    + (if $due_on != "" then {due_on: $due_on} else {} end)
-    + (if $assignee != "" then {assignee: $assignee} else {} end)
-    + (if $project != "" then {projects: [$project]} else {} end)
-  }')
+  '{data: ({name: $name}
+    + (if ($notes | length) > 0 then {notes: $notes} else {} end)
+    + (if ($due_on | length) > 0 then {due_on: $due_on} else {} end)
+    + (if ($assignee | length) > 0 then {assignee: $assignee} else {} end)
+    + (if ($project | length) > 0 then {projects: [$project]} else {} end)
+  )}')
 
 asana_api POST "/tasks" -d "$PAYLOAD" | jq '.data | {gid, name, assignee: .assignee.name}'
 
